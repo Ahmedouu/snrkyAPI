@@ -15,10 +15,6 @@ async function generate_proof() {
 //verify the proof with the key sent by the client.
 
 async function verify(vkey){ //verify the key against the proof
-  //const vkey = JSON.parse(fs.readFileSync("verification_key.json"));
-  if (!vkey){
-    return 
-  }
   const {proof, publicSignals} = await generate_proof();
   const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
   if ( res === true ){
@@ -37,7 +33,7 @@ app.use(express.json());
 app.use(async (req, res, next) => {
 
   const vkey = req.body; 
-  if (typeof vkey) {
+  if (Object.keys(vkey).length === 0) {
     res.status(400).send('Missing vkey in request body');
   }
   else if (await verify(vkey)) {
@@ -48,7 +44,7 @@ app.use(async (req, res, next) => {
 });
 
 // Now, any route you define here will require your custom authentication to access
-app.get('/some_route', (req, res) => {
+app.get('/some_secret', (req, res) => {
   res.send('You accessed this route with successful authentication!');
 });
 
